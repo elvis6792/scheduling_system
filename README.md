@@ -78,6 +78,13 @@ npm install
 npm run dev
 ```
 
+### 3. Agent 大腦啟動 (LLM 伺服器)
+本系統依賴相容 OpenAI API 規格的推論伺服器。若使用本地 GGUF 模型，請執行：
+```sh
+# 確保已安裝 llama-cpp-python[server]
+python -m llama_cpp.server --model ./models/your_model_name.gguf --port 8080 --n_ctx 8192
+```
+
 ---
 
 ## 🌐 區域網路 (LAN) 測試說明
