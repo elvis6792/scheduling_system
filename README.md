@@ -108,5 +108,10 @@ python -m llama_cpp.server --model ./models/your_model_name.gguf --port 8080 --n
 
 ---
 
+## 🙏 致謝 (Acknowledgments)
+本專案的核心推理能力由 [Qwen2.5-Coder](https://github.com/QwenLM/Qwen2.5-Coder) 系列模型驅動。特別感謝 **阿里雲 Qwen 團隊** 開源了如此強大的模型，讓本系統在中文語義理解與任務規劃上具備極高的準確度。
+
+---
+
 ## 📄 開源協議
 本專案採用 [MIT License](LICENSE) 協議。歡迎任何形式的 Contribution 與建議！
