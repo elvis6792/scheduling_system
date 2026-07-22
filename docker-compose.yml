@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Caddy 作為所有流量的第一道防線與自動 HTTPS
+  gateway:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    env_file:
+      - .env
+    restart: unless-stopped
+    # 限制 AI 引擎的容器資源，防止單一程序吃光宿主機記憶體
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+
+volumes:
+  caddy_data:
+  caddy_config:

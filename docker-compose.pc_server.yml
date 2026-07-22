@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  scheduling_agent_v5:
+    build:
+      context: .
+      dockerfile: Dockerfile.pc_server
+    image: scheduling-agent-v5:latest
+    container_name: agent_api
+    ports:
+      - "8000:8000"
+    volumes:
+      # 掛載模型目錄，避免將 10GB+ 的 GGUF 打包進 Image 中
+      - ./models:/app/models
+    environment:
+      - LLM_API_KEY=sk-local-dummy-key
+      - LLM_BASE_URL=http://127.0.0.1:8080/v1
+      - LLM_MODEL=qwen2.5-coder-14b-instruct-q5_0
+    # 必須宣告 deploy 配置以啟用 NVIDIA Container Toolkit，否則無法透傳 GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
