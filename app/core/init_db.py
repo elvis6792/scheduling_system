@@ -1,8 +1,10 @@
 import asyncio
+import secrets
 from sqlmodel import SQLModel, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+from app.core.config import settings
 from app.core.database import engine
 from app.core.security import get_password_hash
 from app.models.domain import User, Role, Department, Staff, Program, ChatHistory
@@ -17,7 +19,7 @@ async def init_db():
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
         
-        result = await session.execute(select(User).where(User.username == "admin"))
+        result = await session.execute(select(User).where(User.username == settings.ADMIN_USERNAME))
         existing_admin = result.scalar_one_or_none()
         
         if not existing_admin:
@@ -39,14 +41,20 @@ async def init_db():
              await session.flush()
              
              # 3. 建立登入帳號，並強制綁定剛剛建立的 staff_id
+             initial_password = settings.ADMIN_INITIAL_PASSWORD
+             generated_password = False
+             if not initial_password:
+                 initial_password = secrets.token_urlsafe(16)
+                 generated_password = True
+
              admin = User(
-                 username="admin",
-                 hashed_password=get_password_hash("password123"),
+                 username=settings.ADMIN_USERNAME,
+                 hashed_password=get_password_hash(initial_password),
                  role=Role.ADMIN,
                  staff_id=admin_staff.id  # 讓 admin 擁有實體身分
              )
              session.add(admin)
- 
+
              # 4. 預設節目
              default_program = Program(
                  name="例行早安會議",
@@ -57,7 +65,10 @@ async def init_db():
              session.add(default_program)
              
              await session.commit()
-             print("[SUCCESS] 預設資料與 admin 帳號注入成功！")
+             if generated_password:
+                 print(f"[SUCCESS] 預設資料與 {settings.ADMIN_USERNAME} 帳號注入成功！隨機初始密碼: {initial_password}（請登入後立即修改）")
+             else:
+                 print(f"[SUCCESS] 預設資料與 {settings.ADMIN_USERNAME} 帳號注入成功！")
         else:
             print("[INFO] 資料庫已存在基礎資料，跳過注入步驟。")
 

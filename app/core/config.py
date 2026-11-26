@@ -1,4 +1,6 @@
 import os
+import secrets
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
@@ -12,9 +14,13 @@ class Settings(BaseSettings):
     # 資料庫配置
     database_url: str = "sqlite+aiosqlite:///./data/scheduling.db"
     
-    # JWT 安全金鑰與演算法
-    SECRET_KEY: str = "your_super_secret_key_change_me"
+    # JWT 安全金鑰與演算法 (未設定時於啟動時動態產生隨機金鑰)
+    SECRET_KEY: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
     ALGORITHM: str = "HS256"
+
+    # 初始管理員帳號設定 (建議透過 .env 設定)
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_INITIAL_PASSWORD: str = ""
 
     # CORS 跨來源資源共享
     ALLOWED_ORIGINS: List[str] = [
