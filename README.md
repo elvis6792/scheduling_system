@@ -55,7 +55,19 @@ docker-compose -f docker-compose.pc_server.yml up -d --build
 
 ##  快速啟動 (開發者模式)
 
-### 1. 後端啟動
+### 環境設定（選用）
+首次啟動前可依需要複製環境變數範本並自訂設定：
+```sh
+cp .env.example .env
+```
+*若未建立 `.env` 或未設定 `ADMIN_INITIAL_PASSWORD`，系統於首次初始化資料庫時會自動產生隨機 `SECRET_KEY` 與一次性 `admin` 初始密碼（顯示於終端機，請登入後修改）。*
+
+### macOS 一鍵啟動（推薦）
+確認已完成後端虛擬環境（`.venv`）與模型（`models/*.gguf`）放置後，直接雙擊專案根目錄的 `start_all.command`（或在終端機執行 `./start_all.command`），即可同時啟動 **Agent (8080)**、**後端 (8000)** 與 **前端 (5173)**。
+
+### 手動啟動
+
+#### 1. 後端啟動
 ```sh
 # 1. 建立並啟動虛擬環境
 python -m venv .venv
@@ -71,14 +83,14 @@ python -m app.core.init_db
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### 2. 前端啟動
+#### 2. 前端啟動
 ```sh
 cd frontend
 npm install
-npm run dev
+npm run dev -- --host
 ```
 
-### 3. Agent 大腦啟動 (LLM 伺服器)
+#### 3. Agent 大腦啟動 (LLM 伺服器)
 本系統依賴相容 OpenAI API 規格的推論伺服器。若使用本地 GGUF 模型，請執行：
 ```sh
 # 確保已安裝 llama-cpp-python[server]
